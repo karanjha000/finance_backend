@@ -29,13 +29,13 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
-    @GetMapping("/{id}/role")
+    @PutMapping("/{id}/role")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> updateRole(@PathVariable Long id, @RequestBody RegisterRequest request){
         return ResponseEntity.ok(userService.updateUserRole(id, request));
     }
 
-    @GetMapping("/{id}/toggle-status")
+    @PutMapping("/{id}/toggle-status")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> toggleStatus(@PathVariable Long id){
         return ResponseEntity.ok(userService.toggleUserStatus(id));

@@ -7,6 +7,7 @@ import com.finance.backend.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cglib.core.Local;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,8 +33,10 @@ public class TransactionController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ANALYST', 'VIEWER')")
-    public ResponseEntity<List<TransactionResponse>> getAll(){
-        return ResponseEntity.ok(transactionService.getAll());
+    public ResponseEntity<Page<TransactionResponse>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(transactionService.getAllPaged(page, size));
     }
 
     @GetMapping("/{id}")

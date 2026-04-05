@@ -42,4 +42,7 @@ public class Transaction {
     }
 
     private String notes;
+
+    @Column(nullable = false)
+    private boolean deleted = false;
 }

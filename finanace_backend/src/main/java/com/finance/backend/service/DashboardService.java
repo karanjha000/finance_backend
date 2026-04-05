@@ -21,13 +21,13 @@ public class DashboardService {
     private final TransactionRepository transactionRepository;
 
     public BigDecimal getTotalIncome(){
-        return transactionRepository.findByType(TransactionType.INCOME)
+        return transactionRepository.findByTypeAndDeletedFalse(TransactionType.INCOME)
                 .stream()
                 .map(Transaction::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
     public BigDecimal getTotalExpenses(){
-        return transactionRepository.findByType(TransactionType.EXPENSE)
+        return transactionRepository.findByTypeAndDeletedFalse(TransactionType.EXPENSE)
                 .stream()
                 .map(Transaction::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

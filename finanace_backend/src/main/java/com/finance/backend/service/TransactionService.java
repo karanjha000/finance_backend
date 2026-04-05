@@ -8,6 +8,10 @@ import com.finance.backend.model.User;
 import com.finance.backend.repository.TransactionRepository;
 import com.finance.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
@@ -36,16 +40,22 @@ public class TransactionService {
     }
 
     public List<TransactionResponse> getAll() {
-        return transactionRepository.findAll()
+        return transactionRepository.findAllByDeletedFalse()
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public TransactionResponse getById(Long id) {
-        Transaction transaction = transactionRepository.findById(id)
+        Transaction transaction = transactionRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new RuntimeException("Transaction not found with id: " + id));
         return mapToResponse(transaction);
+    }
+
+    public Page<TransactionResponse> getAllPaged(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        return transactionRepository.findAllByDeletedFalse(pageable)
+                .map(this::mapToResponse);
     }
 
     public TransactionResponse update(Long id, TransactionRequest request) {
@@ -62,24 +72,24 @@ public class TransactionService {
     }
 
     public void delete(Long id) {
-        if (!transactionRepository.existsById(id)) {
-            throw new RuntimeException("Transaction not found with id: " + id);
-        }
-        transactionRepository.deleteById(id);
+        Transaction transaction = transactionRepository.findByIdAndDeletedFalse(id)
+                .orElseThrow(() -> new RuntimeException("Transaction not found with id: " + id));
+        transaction.setDeleted(true);
+        transactionRepository.save(transaction);
     }
 
     public List<TransactionResponse> filterByType(TransactionType type) {
-        return transactionRepository.findByType(type)
+        return transactionRepository.findByTypeAndDeletedFalse(type)
                 .stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
     public List<TransactionResponse> filterByCategory(String category) {
-        return transactionRepository.findByCategory(category)
+        return transactionRepository.findByCategoryAndDeletedFalse(category)
                 .stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
     public List<TransactionResponse> filterByDateRange(LocalDate start, LocalDate end) {
-        return transactionRepository.findByDateBetween(start, end)
+        return transactionRepository.findByDateBetweenAndDeletedFalse(start, end)
                 .stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
